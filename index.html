@@ -1709,6 +1709,12 @@ async function addPlace() {
         lng
     );
 }
+      } catch (error) { 
+            console.error("位置情報取得エラー", error);
+             alert( "位置情報の取得に失敗しました。\n" + 
+             "もう一度試してください。" ); 
+             return;         
+           }  
  
     // ===== 新しい場所のデータを作成 =====
 
