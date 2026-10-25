@@ -1692,20 +1692,23 @@ async function addPlace() {
                 ); found = true; 
                 break; 
             } 
-        } if (!found) { 
-            alert( "場所の位置を見つけられませんでした。\n\n" +
-             "住所をもう少し詳しくするか、" +
-              "場所の名前を正確に入力してください。"
-             ); 
-              return; 
-            }
-         } catch (error) { 
-            console.error("位置情報取得エラー", error);
-             alert( "位置情報の取得に失敗しました。\n" + 
-             "もう一度試してください。" ); 
-             return;         
-         }
-   
+        if (!found) {
+    alert(
+        "住所から場所を特定できませんでした。\n\n" +
+        "次に表示される地図で、登録したい場所をクリックしてください。"
+    );
+
+    const selectedPosition = await selectNewPlaceLocation();
+
+    lat = selectedPosition.lat;
+    lng = selectedPosition.lng;
+
+    console.log(
+        "地図から位置を選択しました",
+        lat,
+        lng
+    );
+}
  
     // ===== 新しい場所のデータを作成 =====
 
