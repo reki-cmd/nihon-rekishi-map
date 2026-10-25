@@ -168,12 +168,12 @@
         margin:10px 12px;
     }
     .leaflet-popup-content .popup-image{
+        display: block;
         width:100%;
-        height: 140px;
+        max-height: 180px;
         object-fit:cover;
-        border-radius: 6px;
-        display:block;
-        margin: 6px 0 8px;
+        border-radius: 8px;
+        margin: 8px 0;
     }
     .leaflet-popup-content h2{
         font-size: 18px;
@@ -182,13 +182,23 @@
     .leaflet-popup-content p {
         margin: 5px 0;
     }
-     @media(min-width:768px){
+    @media(min-width:768px){
         .leaflet-popup-content{
             width: 360px !important;
             max-width: 360px !important;
             margin: 12px 16px;
         }
-    }    
+    }
+     /* コメント欄を独立してスクロール */
+[id^="comments-"] {
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+    background: #fff8ed;
+    border: 1px solid #e2d1b4;
+    border-radius: 6px;
+    padding: 8px;
+}
     </style>
  
   <script type="module">
@@ -210,13 +220,16 @@ import {
     getDocs,
     deleteDoc,
     updateDoc,
-    doc
+    doc,
+    getDoc,
+    setDoc,
+    onSnapshot
      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import{
     getStorage,
     ref,
     uploadBytes,
-    getDownloadURL
+    getDownloadURL,
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 import{
     getAuth,
@@ -238,6 +251,9 @@ window.firestoreGetDocs = getDocs;
 window.firestoreDeleteDoc = deleteDoc;
 window.firestoreUpdateDoc = updateDoc;
 window.firestoreDoc = doc;
+window.firestoreGetDoc=getDoc;
+window.firestoreSetDoc=setDoc;
+window.firestoreOnSnapshot=onSnapshot;
 // ===== 匿名ログイン =====
 const auth = getAuth(app);
 window.auth = auth;
@@ -471,11 +487,6 @@ openAddPlace.addEventListener("click", function() {
 <input id="newPlaceAddress" placeholder="住所（例：中区本丸）">
 <h3>コメント</h3>
 <textarea id="newPlaceComment" placeholder="コメント"></textarea>
-<h3>📷写真</h3>
-<input type="file"id="newPlaceImageFile"accept="image/*">
-
-<img id="newPlaceImagePreview"
-     style="display: none;width:100%;max-width:300px;margin-top:10px;border-radius:8px;">
 
 <div class="form-group">
 <h3>訪問について</h3>
@@ -625,353 +636,7 @@ function chooseLocationOnMap(currentLat, currentLng) {
     });
 }
 let markers=[];
-const places = [
- {
-  name: "名古屋城",
-  category: "城",
-  prefecture: "愛知県",
-  city: "名古屋市",
-  lat: 35.1858,
-  lng: 136.8992,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年04月",
-  image: "images/nagoyajo.jpg",
-  comment: "2026年最初の活動！毎年恒例です(^▽^)/"
- },
- {
-　name: "清州城",
-  category: "城",
-  prefecture: "愛知県",
-  city: "清須市",
-  lat: 35.2232,
-  lng: 136.8529,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年05月",
-  image: "images/kiyosujo.jpeg",
-  comment:"織田信長ゆかりの城"
- },
- {
-  name: "熱田神宮",
-  category: "神社",
-  prefecture: "愛知県",
-  city: "名古屋市",
-  lat: 35.1258,
-  lng: 136.9087,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年12月",
-  image: "images/atsutajingu.jpeg",
-  comment:"草薙剣を祀る神社"
- },
-  
-{
-  name: "あいち朝日遺跡ミュージアム",
-  category: "博物館",
-  prefecture: "愛知県",
-  city: "清須市",
-  lat: 35.2186,
-  lng: 136.8514,
-  pinType: "同好会",
-  user: "歴史同好会",
-  date: "2026年5月",
-  image: "images/asahiiseki.jpeg",
-  comment: "東海地方最大級の弥生集落・朝日遺跡を紹介"
-},
-{
-  name: "伊勢神宮 内宮(皇大神宮)",
-  category: "神社",
-  prefecture: "三重県",
-  city: "伊勢市",
-  lat: 34.4550,
-  lng: 136.7252,
-  pinType: "同好会",
-  user: "歴史同好会",
-  date: "2026年3月",
-  image: "images/naiku.JPG",
-  comment: "天照大御神を祀る"
-},
-{
-  name: "伊勢神宮 外宮(豊受大神宮)",
-  category: "神社",
-  prefecture: "三重県",
-  city: "伊勢市",
-  lat: 34.4872,
-  lng: 136.7029,
-  pinType: "同好会",
-  user: "歴史同好会",
-  date: "2026年3月",
-  image: "images/geku.jpeg",
-  comment: ""
-},
-
-{
-  name: "岡崎城",
-  category: "城",
-  prefecture: "愛知県",
-  city: "岡崎市",
-  lat: 34.9568,
-  lng: 137.1595,
-  pinType: "同好会",
-  user: "歴史同好会",
-  date: "2026年１月",
-  image: "images/okazakijo.jpeg",
-  comment: "徳川家康生誕の城。"
-},
-
-{
-  name: "長久手古戦場記念館",
-  category: "博物館",
-  prefecture: "愛知県",
-  city: "長久手市",
-  lat: 35.1845,
-  lng: 137.0394,
-  pinType: "同好会",
-  user: "歴史同好会",
-  date: "2026年6月",
-  image: "images/nagakute.jpeg",
-  comment: "小牧・長久手の戦いを紹介する歴史資料館。"
-},
-
-{
-  name: "彦根城",
-  category: "城",
-  prefecture: "滋賀県",
-  city: "彦根市",
-  lat: 35.2764,
-  lng: 136.2520,
-  pinType: "同好会",
-  user: "歴史同好会",
-  date: "2026年9月",
-  image: "images/hikonejo.jpeg",
-  comment: "国宝5城の一つ！"
-},
-
-{
-　name: "神宮徴古館",
-  category: "博物館",
-  prefecture: "三重県",
-  city: "伊勢市",
-  lat: 34.4868,
-  lng: 1367244,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年03月",
-  image: "images/tyoukokan.jpeg",
-  comment:""
- },
- {
-　name: "吉田城",
-  category: "城",
-  prefecture: "愛知県",
-  city: "豊橋市",
-  lat: 34.7707,
-  lng: 137.3929,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年01月",
-  image: "images/yoshidajo.jpeg",
-  comment:""
- },
-{
-　name: "二川宿",
-  category: "町並み",
-  prefecture: "愛知県",
-  city: "豊橋市",
-  lat: 34.7235,
-  lng: 137.4500,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年01月",
-  image: "images/hutagawa.jpeg",
-  comment:""
- },
- {
-　name: "旧岡崎銀行本店",
-  category: "建物",
-  prefecture: "愛知県",
-  city: "岡崎市",
-  lat: 34.9579,
-  lng: 137.1679,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年01月",
-  image: "images/okazakiginko.jpeg",
-  comment:"近代建築家鈴木禎二設計の本格的なルネッサンス様式の建築"
- },
- {
-　name: "小牧山城",
-  category: "城",
-  prefecture: "愛知県",
-  city: "小牧市",
-  lat: 35.2925,
-  lng: 136.9123,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年03月",
-  image: "images/komakiyamajo.jpeg",
-  comment:""
- },
-{
-　name: "新見南吉記念館",
-  category: "博物館",
-  prefecture: "愛知県",
-  city: "半田市",
-  lat: 34.9092,
-  lng: 136.9110,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2026年02月",
-  image: "images/niimikinenkan.jpeg",
-  comment:""
- },
- {
-　name: "徳川美術館",
-  category: "博物館",
-  prefecture: "愛知県",
-  city: "名古屋市",
-  lat: 35.1837,
-  lng: 136.9332,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年12月",
-  image: "images/tokubi.jpeg",
-  comment:""
- },
-  {
-　name: "愛知県陶磁美術館",
-  category: "博物館",
-  prefecture: "愛知県",
-  city: "瀬戸市",
-  lat: 35.1859,
-  lng: 137.0988,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年11月",
-  image: "images/touzi.jpeg",
-  comment:""
- },
-  {
-　name: "桑名市博物館",
-  category: "博物館",
-  prefecture: "三重県",
-  city: "桑名市",
-  lat: 36.0632,
-  lng: 136.6937,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年6月",
-  image: "images/kuwanashihaku.jpeg",
-  comment:""
- },
- {
-　name: "桑名市立石取会館",
-  category: "博物館",
-  prefecture: "三重県",
-  city: "桑名市",
-  lat: 35.0637,
-  lng: 136.6942,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年6月",
-  image: "images/ishitori.jpeg",
-  comment:""
- },
- {
-　name: "桑名宗社",
-  category: "神社",
-  prefecture: "三重県",
-  city: "桑名市",
-  lat: 35.0654,
-  lng: 136.6946,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年6月",
-  image: "images/kuwanasousha.jpeg",
-  comment:""
- },
- {
-　name: "六華苑",
-  category: "建物",
-  prefecture: "三重県",
-  city: "桑名市",
-  lat: 35.0710,
-  lng: 136.6924,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年6月",
-  image: "images/rokkaen.jpeg",
-  comment:""
- },
- {
-　name: "妙興寺",
-  category: "寺",
-  prefecture: "愛知県",
-  city: "一宮市",
-  lat: 35.2852,
-  lng: 136.8003,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年10月",
-  image: "images/myoukouzi.jpeg",
-  comment:""
- },
-  {
-　name: "一宮市博物館",
-  category: "博物館",
-  prefecture: "愛知県",
-  city: "一宮市",
-  lat: 35.2840,
-  lng: 136.8001,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年10月",
-  image: "images/ichinomiyahaku.jpeg",
-  comment:""
- },
-{
-　name: "天龍寺",
-  category: "寺",
-  prefecture: "京都府",
-  city: "京都市",
-  lat: 35.0156,
-  lng: 135.6737,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年9月",
-  image: "images/tenryu.jpeg",
-  comment:""
- },
- {
-　name: "元離宮二条城",
-  category: "城",
-  prefecture: "京都府",
-  city: "京都市",
-  lat: 35.01422,
-  lng: 135.7478,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年9月",
-  image: "images/nijo.jpeg",
-  comment:"nijyo"
- },
- {
-　name: "京都御所",
-  category: "建物",
-  prefecture: "京都府",
-  city: "京都市",
-  lat: 35.02522,
-  lng: 135.7629,
-  pinType:"同好会",
-  user: "歴史同好会",
-  date: "2025年9月",
-  image: "images/gosyo.jpeg",
-  comment:""
- },
-
- 
-];
+const places = [];
 
 // ===== ピンを表示 =====
 places.forEach(function(place) {
@@ -985,7 +650,6 @@ places.forEach(function(place) {
     .addTo(map)
     .bindPopup(`
 <h2>${icons[place.category]} ${place.name}</h2>
-<img src="${place.image}" width="250">
 <p><b>分類</b>：${place.category}</p>
 <p><b>所在地</b>：${place.prefecture} ${place.city}</p>
 <p>📅 ${place.date}</p>
@@ -1080,7 +744,6 @@ async function loadFirestorePlaces() {
                 pinType: data.pinType || "ゲスト",
                 user: data.user || "ゲスト",
                 date: data.date || "",
-                image: data.image || "",
                 comment: data.comment || ""
             };
 
@@ -1099,7 +762,6 @@ async function loadFirestorePlaces() {
             .addTo(map)
             .bindPopup(`
                 <h2>${icons[place.category] || "📍"} ${place.name}</h2>
-                ${place.image?`<img src="${place.image}"class="popup-image">`:""}
                 <p><b>分類</b>：${place.category}</p>
                 <p><b>所在地</b>：${place.prefecture} ${place.city} ${place.address}</p>
                 <p>📅 ${formatVisitMonth(place.date)}</p>
@@ -1114,11 +776,21 @@ async function loadFirestorePlaces() {
                     padding:8px;
                     background:#fff8f0;
                     border-radius:6px;
+                    max-height:180px;
+                    overflow-y:auto;
+                    overflow-wrap:anywhere;
+                    padding-right:5px;
                  "
                 >
                    コメントを読み込み中...
                 </div>
-
+　             <div style="margin-top:10px;">
+                <button id="like-${place.id}"
+                 style="width:100%;margin-top:6px;">
+                 ❤️ いいね
+               </button>
+               <span id="like-count-${place.id}">いいね読み込み中...</span>
+               </div>
                 <button id="comment-${place.id}"
                         style="width:100%;margin-top:6px;">
                         💭 コメントを追加
@@ -1143,7 +815,17 @@ async function loadFirestorePlaces() {
                         addComment(place);
                     };
                 }
-                
+                 const likeButton = document.getElementById(
+              `like-${place.id}`
+               );
+
+              if (likeButton) {
+               likeButton.onclick = function() {
+             toggleLike(place);
+              };
+             }
+
+           loadLikes(place);
                 const editButton = document.getElementById(
                     `edit-${place.id}`
                 );
@@ -1334,7 +1016,6 @@ async function loadFirestorePlaces() {
 
             place.marker.setPopupContent(`
                 <h2>${icons[place.category] || "📍"} ${place.name}</h2>
-                ${place.image ? `<img src="${place.image}" class="popup-image">` : ""}
                 <p><b>分類</b>：${place.category}</p>
                 <p><b>所在地</b>：${place.prefecture} ${place.city} ${place.address}</p>
                 <p>📅 ${formatVisitMonth(place.date)}</p>
@@ -1342,7 +1023,15 @@ async function loadFirestorePlaces() {
                 <p>👤 ${place.user}</p>
                 <p>💭 ${place.comment}</p>
                 <div id="comments-${place.id}"
-                     style="margin-top:10px;padding:8px;background:#fff8f0;border-radius:6px;">
+                     style="
+                     margin-top:10px;
+                     padding:8px;
+                     background:#fff8f0;
+                     border-radius:6px;
+                     max-height:180px;
+                     overflow-y:auto;
+                     overflow-wrap:anywhere;
+                     padding-right:5px;">
                     コメントを読み込み中...
                 </div>
                 <button id="comment-${place.id}" style="width:100%;margin-top:6px;">
@@ -1613,27 +1302,12 @@ function moveToPrefecture() {
         map.setView(prefectureCenters[prefecture], 9)
     }
 }
-// ===== 写真プレビュー =====
-document.getElementById("newPlaceImageFile").addEventListener("change", function(event) {
-    const file = event.target.files[0];
-    const preview = document.getElementById("newPlaceImagePreview");
 
-    if (file) {
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = "block";
-    } else {
-        preview.src = "";
-        preview.style.display = "none";
-    }
-});
 // ===== 場所を追加 =====
 async function addPlace() {
 
     const name =
         document.getElementById("newPlaceName").value.trim();
-    
-    const imageFile =
-        document.getElementById("newPlaceImageFile").files[0];
 
     const category =
         document.getElementById("newPlaceCategory").value;
@@ -1718,40 +1392,7 @@ async function addPlace() {
              return;         
          }
    
-  // ===== 写真をFirebase Storageに保存 =====
-
-let imageUrl = "";
-
-if (imageFile) {
-
-    try {
-    console.log("ref確認:",window.storageRef);
-        const imageRef =   window.storageRef(
-            window.storage,
-            "places/" + Date.now() + "_" + imageFile.name
-        );
-
-        const snapshot = await window.storageUploadBytes(
-            imageRef,
-            imageFile
-        );
-
-        imageUrl = await window.storageGetDownloadURL(
-            snapshot.ref
-        );
-
-        console.log("写真アップロード成功", imageUrl);
-        alert("写真URL取得成功\n" + imageUrl);
-
-    } catch (error) {
-
-        console.error("写真アップロードエラー", error);
-
-        alert("写真の保存に失敗しました。\n\nエラー内容:\n" +error.message);
-
-        return;
-    }
-}       
+ 
     // ===== 新しい場所のデータを作成 =====
 
     const newPlace = {
@@ -1766,7 +1407,6 @@ if (imageFile) {
         pinType: pinType,
         user: user ||  "ゲスト",
         ownerUid:window.currentUser.uid,
-        image: imageUrl,
         comment: comment,
         date: date,
 
@@ -1809,7 +1449,6 @@ if (imageFile) {
         .addTo(map)
         .bindPopup(`
             <h2>${icons[category]} ${name}</h2>
-            ${imageUrl ? `<img src="${imageUrl}"class="popup-image">`:""}
             <p><b>分類</b>：${category}</p>
             <p><b>所在地</b>：${prefecture} ${city} ${address}</p>
             <p>📅 ${newPlace.date}</p>
@@ -2021,7 +1660,71 @@ async function loadComments(place) {
         );
     }
 }
+// いいね数をリアルタイムで読み込む
+function loadLikes(place) {
+    const placeKey = String(place.id || place.name);
 
+    const countElement = document.getElementById(
+        `like-count-${place.id}`
+    );
+
+    if (!countElement) return;
+
+    const likesRef = window.firestoreCollection(
+        window.db,
+        "places",
+        placeKey,
+        "likes"
+    );
+
+    window.firestoreOnSnapshot(
+        likesRef,
+        (snapshot) => {
+            countElement.textContent =
+                `❤️ ${snapshot.size} いいね`;
+        },
+        (error) => {
+            console.error("いいね読み込みエラー", error);
+            countElement.textContent = "いいね数を読み込めません";
+        }
+    );
+}
+
+// いいねを追加・取り消しする
+async function toggleLike(place) {
+    try {
+        const user = window.auth.currentUser;
+
+        if (!user) {
+            alert("ログインの準備ができていません。少し待ってから再度お試しください。");
+            return;
+        }
+
+        const placeKey = String(place.id || place.name);
+
+        const likeRef = window.firestoreDoc(
+            window.db,
+            "places",
+            placeKey,
+            "likes",
+            user.uid
+        );
+
+        const likeSnapshot = await window.firestoreGetDoc(likeRef);
+
+        if (likeSnapshot.exists()) {
+            await window.firestoreDeleteDoc(likeRef);
+        } else {
+            await window.firestoreSetDoc(likeRef, {
+                userId: user.uid,
+                createdAt: new Date().toISOString()
+            });
+        }
+    } catch (error) {
+        console.error("いいね保存エラー", error);
+        alert("いいねを保存できませんでした。Firebaseの設定を確認してください。");
+    }
+}
 function togglePlaceList() {
     const placeList = document.getElementById("placeList");
 
