@@ -1739,7 +1739,7 @@ if (!found) {
     );
 
     try {
-        const selectedPosition = await selectNewPlaceLocation();
+        const selectedPosition = await selectNewPlaceLocationOnMap(36.2,138.2);
 
         lat = selectedPosition.lat;
         lng = selectedPosition.lng;
