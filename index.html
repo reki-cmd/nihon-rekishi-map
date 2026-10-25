@@ -1655,8 +1655,8 @@ async function addPlace() {
         return;
     }
 
-    if (!name || !city ) {
-        alert("場所の名前・市区町村・住所を入力してください");
+    if (!name || !city) {
+        alert("場所の名前・市区町村を入力してください");
         return;
     }
 // ===== 住所から緯度・経度を自動取得 =====
@@ -1757,10 +1757,7 @@ if (!found) {
         return;
     }
 }
-
-
- 
-    // ===== 新しい場所のデータを作成 =====
+     // ===== 新しい場所のデータを作成 =====
 
     const newPlace = {
 
