@@ -199,6 +199,112 @@
     border-radius: 6px;
     padding: 8px;
 }
+        /* ===== 日本歴史旅マップ：歴史風デザイン ===== */
+
+/* サイト全体 */
+body {
+    background-color: #f4efe3;
+    color: #302b25;
+    font-family:
+        "Yu Mincho",
+        "Hiragino Mincho ProN",
+        "Noto Serif JP",
+        serif;
+}
+
+/* タイトル部分 */
+h1 {
+    background: linear-gradient(
+        135deg,
+        #263b50,
+        #17283b
+    );
+    color: #f5e7c1;
+    border-bottom: 4px solid #b99552;
+    letter-spacing: 0.12em;
+    padding: 18px 10px;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* 左側の操作パネル */
+#searchBox {
+    background-color: #eee5d2;
+    border-right: 3px solid #b99552;
+    color: #302b25;
+}
+
+/* 検索欄・選択欄・入力欄 */
+#searchInput,
+#searchBox select,
+#searchBox input,
+#searchBox textarea {
+    background-color: #fffaf0;
+    color: #302b25;
+    border: 1px solid #b9a47e;
+    border-radius: 5px;
+}
+
+/* 入力中の欄 */
+#searchInput:focus,
+#searchBox select:focus,
+#searchBox input:focus,
+#searchBox textarea:focus {
+    outline: 2px solid #b99552;
+    border-color: #b99552;
+}
+
+/* 通常のボタン */
+button {
+    background-color: #31485c;
+    color: #fff8e8;
+    border: 1px solid #b99552;
+    border-radius: 5px;
+    transition: 0.2s;
+}
+
+/* ボタンにマウスを乗せたとき */
+button:hover {
+    background-color: #49647b;
+}
+
+/* 場所を追加するボタン */
+#openAddPlace {
+    background-color: #8e352d;
+    color: #fff8e8;
+    border: 2px solid #b99552;
+    border-radius: 7px;
+}
+
+/* 場所追加ボタンにマウスを乗せたとき */
+#openAddPlace:hover {
+    background-color: #a8473d;
+}
+
+/* 場所の追加フォーム */
+#addPlaceForm {
+    background-color: #f7efdd;
+    border: 2px solid #b99552;
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(40, 30, 15, 0.12);
+}
+
+/* 同好会活動フィルター */
+#clubActivityFilter.active {
+    background-color: #d8bd78;
+    color: #302b25;
+    border: 2px solid #8e352d;
+}
+
+/* 場所一覧 */
+.placeItem {
+    border-bottom: 1px solid #d2c3a5;
+}
+
+.placeItem:hover {
+    background-color: #e4d8bf;
+}
+
+/* ===== 歴史風デザインここまで ===== */
     </style>
  
   <script type="module">
