@@ -1659,62 +1659,106 @@ async function addPlace() {
         alert("場所の名前・市区町村・住所を入力してください");
         return;
     }
+// ===== 住所から緯度・経度を自動取得 =====
 
-// ===== 住所から緯度・経度を自動取得 ===== 
-　  let lat;
-    let lng;
-    const searchQueries = [ 
-    prefecture + city + address, 
-    prefecture + city + name, 
-    city + name
- 　]; 
- 　let found = false;
- try { 
-    for (const query of searchQueries) { 
-        console.log("住所検索中：", query); 
-        const response = await fetch(
-             "https://nominatim.openstreetmap.org/search" +
-              "?format=jsonv2" + 
-              "&limit=1" + 
-              "&accept-language=ja" + 
-              "&countrycodes=jp" +
-               "&q=" +
-                encodeURIComponent(query) 
-            ); 
-            const data = await response.json(); 
-            if (data.length > 0) {
-                lat = Number(data[0].lat); 
-                lng = Number(data[0].lon); 
-                console.log( "位置情報を取得しました", 
-                lat, 
-                lng,
-                 "検索：" + query 
-                ); found = true; 
-                break; 
-            } 
-        if (!found) {
+let lat;
+let lng;
+let found = false;
+
+// 住所が入力されている場合だけ、自動検索する
+if (address.trim()) {
+
+    const searchQueries = [
+        prefecture + city + address,
+        prefecture + city + name,
+        city + name
+    ];
+
+    try {
+        for (const query of searchQueries) {
+
+            console.log("住所検索中：", query);
+
+            try {
+                const response = await fetch(
+                    "https://nominatim.openstreetmap.org/search" +
+                    "?format=jsonv2" +
+                    "&limit=1" +
+                    "&accept-language=ja" +
+                    "&countrycodes=jp" +
+                    "&q=" +
+                    encodeURIComponent(query)
+                );
+
+                if (!response.ok) {
+                    console.warn(
+                        "住所検索に失敗しました：",
+                        response.status
+                    );
+                    break;
+                }
+
+                const data = await response.json();
+
+                if (data.length > 0) {
+                    lat = Number(data[0].lat);
+                    lng = Number(data[0].lon);
+
+                    console.log(
+                        "位置情報を取得しました",
+                        lat,
+                        lng,
+                        "検索：" + query
+                    );
+
+                    found = true;
+                    break;
+                }
+
+            } catch (searchError) {
+                console.warn(
+                    "住所検索でエラーが発生しました：",
+                    searchError
+                );
+                break;
+            }
+        }
+
+    } catch (error) {
+        console.error("住所検索エラー：", error);
+    }
+}
+
+// ===== 住所が分からない・検索できない場合は地図で選択 =====
+
+if (!found) {
+
     alert(
-        "住所から場所を特定できませんでした。\n\n" +
+        "住所から位置を特定できませんでした。\n\n" +
         "次に表示される地図で、登録したい場所をクリックしてください。"
     );
 
-    const selectedPosition = await selectNewPlaceLocation();
+    try {
+        const selectedPosition = await selectNewPlaceLocation();
 
-    lat = selectedPosition.lat;
-    lng = selectedPosition.lng;
+        lat = selectedPosition.lat;
+        lng = selectedPosition.lng;
 
-    console.log(
-        "地図から位置を選択しました",
-        lat,
-        lng
-    );
+        console.log(
+            "地図から位置を選択しました",
+            lat,
+            lng
+        );
+
+    } catch (error) {
+        console.error("地図での位置選択エラー：", error);
+
+        alert("位置の選択に失敗しました。もう一度お試しください。");
+        return;
+    }
 }
-      } catch (error) { 
-            console.error("位置情報取得エラー", error);
-             alert( "位置情報の取得に失敗しました。\n" + 
-             "もう一度試してください。" ); 
-             return;         
-           }  
+
+
  
     // ===== 新しい場所のデータを作成 =====
 
