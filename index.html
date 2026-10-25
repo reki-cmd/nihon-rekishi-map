@@ -896,6 +896,59 @@ function chooseLocationOnMap(currentLat, currentLng) {
         map.on("click", onMapClick);
     });
 }
+    // ===== 地図をクリックして新しい場所の位置を選ぶ =====
+function selectNewPlaceLocation() {
+    return new Promise((resolve) => {
+        alert(
+            "地図上の登録したい場所をクリックしてください。\n" +
+            "位置を選ぶと確認画面が表示されます。"
+        );
+
+        let tempMarker = null;
+
+        function cleanup() {
+            map.off("click", onMapClick);
+
+            if (tempMarker) {
+                map.removeLayer(tempMarker);
+            }
+        }
+
+        function onMapClick(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+
+            if (tempMarker) {
+                tempMarker.setLatLng(e.latlng);
+            } else {
+                tempMarker = L.marker(e.latlng, {
+                    draggable: true
+                }).addTo(map);
+            }
+
+            const confirmed = confirm(
+                "この位置でよいですか？\n\n" +
+                "緯度：" + lat.toFixed(6) + "\n" +
+                "経度：" + lng.toFixed(6) + "\n\n" +
+                "OK：この位置で登録\n" +
+                "キャンセル：地図をクリックし直す"
+            );
+
+            if (confirmed) {
+                const position = tempMarker.getLatLng();
+
+                cleanup();
+
+                resolve({
+                    lat: position.lat,
+                    lng: position.lng
+                });
+            }
+        }
+
+        map.on("click", onMapClick);
+    });
+}
 let markers=[];
 const places = [];
 
