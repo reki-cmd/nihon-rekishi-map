@@ -363,7 +363,92 @@ min-height: 42px;
 }
 
 /* ===== 工程②ここまで ===== */
+/* ===== 工程③：歴史資料風ポップアップ ===== */
 
+/* ポップアップ全体 */
+.leaflet-popup-content-wrapper {
+    background: #f7efdd;
+    color: #302b25;
+    border: 2px solid #b99552;
+    border-radius: 8px;
+    box-shadow: 0 5px 18px rgba(30, 25, 15, 0.25);
+}
+
+/* 吹き出しの先端 */
+.leaflet-popup-tip {
+    background: #f7efdd;
+    border: 1px solid #b99552;
+}
+
+/* 場所の名前 */
+.leaflet-popup-content h2 {
+    background: #263b50;
+    color: #f5e7c1;
+    padding: 12px 10px;
+    margin: 0 0 12px;
+    border-bottom: 3px solid #b99552;
+    border-radius: 5px 5px 0 0;
+    font-family: "Yu Mincho", "Noto Serif JP", serif;
+    font-size: 19px;
+    line-height: 1.5;
+}
+
+/* 所在地・訪問年月など */
+.leaflet-popup-content p {
+    color: #302b25;
+    line-height: 1.7;
+    padding: 3px 2px;
+    border-bottom: 1px solid #e0d3b9;
+    overflow-wrap: anywhere;
+}
+
+/* コメント欄 */
+.leaflet-popup-content div[id^="comments-"] {
+    background: #fffaf0 !important;
+    color: #302b25;
+    border: 1px solid #d2bd91;
+    border-left: 4px solid #8e352d;
+    border-radius: 5px;
+    padding: 10px !important;
+    line-height: 1.7;
+}
+
+/* ポップアップ内の操作ボタン */
+.leaflet-popup-content button {
+    background: #31485c;
+    color: #fff8e8;
+    border: 1px solid #b99552;
+    border-radius: 5px;
+    padding: 8px 10px;
+    margin-top: 7px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* ボタンにマウスを乗せたとき */
+.leaflet-popup-content button:hover {
+    background: #49647b;
+}
+
+/* 削除ボタンは注意を引く朱色に */
+.leaflet-popup-content button[id^="delete-"] {
+    background: #8e352d;
+    border-color: #b99552;
+}
+
+/* スマートフォンでも横にはみ出さない */
+@media (max-width: 700px) {
+    .leaflet-popup-content {
+        max-width: 260px !important;
+        box-sizing: border-box;
+    }
+
+    .leaflet-popup-content h2 {
+        font-size: 17px;
+    }
+}
+
+/* ===== 工程③ここまで ===== */
     </style>
  
   <script type="module">
