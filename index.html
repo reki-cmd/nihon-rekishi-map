@@ -305,6 +305,65 @@ button:hover {
 }
 
 /* ===== 歴史風デザインここまで ===== */
+        /* ===== 工程②：操作ボタンのデザイン統一 ===== */
+
+/* 操作パネル内のボタン */
+#searchBox button {
+min-height: 38px;
+padding: 8px 12px;
+font-weight: bold;
+letter-spacing: 0.03em;
+box-shadow: 0 2px 3px rgba(40, 30, 15, 0.15);
+}
+
+/* 検索ボタン */
+#searchBox button[onclick="searchPlace()"] {
+background-color: #31485c;
+color: #fff8e8;
+border: 1px solid #b99552;
+}
+
+/* 同好会活動フィルター */
+#clubActivityFilter {
+background-color: #e9dfca;
+color: #31485c;
+border: 2px solid #8d7955;
+}
+
+/* 同好会活動フィルター：選択中 */
+#clubActivityFilter.active {
+background-color: #d8bd78;
+color: #302b25;
+border: 2px solid #8e352d;
+}
+
+/* すべて表示ボタン */
+#showAllPlaces {
+background-color: #eee5d2;
+color: #31485c;
+border: 1px solid #9c8b6b;
+}
+
+/* ボタンを押した瞬間 */
+#searchBox button:active {
+transform: translateY(1px);
+box-shadow: none;
+}
+
+/* 入力欄とボタンの角を統一 */
+#searchInput {
+border-radius: 5px;
+}
+
+/* スマートフォンでは押しやすさを優先 */
+@media (max-width: 700px) {
+#searchBox button {
+min-height: 42px;
+}
+}
+
+/* ===== 工程②ここまで ===== */
+
     </style>
  
   <script type="module">
