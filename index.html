@@ -1197,33 +1197,7 @@ async function loadFirestorePlaces() {
                }
              }, 300);
             });
-　　　　　　　　// ポップアップが地図の表示範囲からはみ出さないように調整
-setTimeout(function() {
-    const popup = marker.getPopup();
-
-    if (popup && popup.isOpen()) {
-        const popupElement = popup.getElement();
-
-        if (popupElement) {
-            const popupRect = popupElement.getBoundingClientRect();
-            const mapRect = map.getContainer().getBoundingClientRect();
-
-            let moveY = 0;
-
-            if (popupRect.top < mapRect.top + 10) {
-                moveY = popupRect.top - mapRect.top - 10;
-            } else if (popupRect.bottom > mapRect.bottom - 10) {
-                moveY = popupRect.bottom - mapRect.bottom + 10;
-            }
-
-            if (moveY !== 0) {
-                map.panBy([0, moveY], {
-                    animate: true
-                });
-            }
-          }
-         }
-　　　　　　}, 100);
+　　　　　　　
             place.marker = marker;
             markers.push(marker);
         });
