@@ -1183,18 +1183,7 @@ async function loadFirestorePlaces() {
                 }
                 //コメントを読み込む
                 loadComments(place);
-                // ポップアップの位置を再調整
-          setTimeout(function() {
-            if (marker.isPopupOpen()) {
-              map.panInside(marker.getLatLng(), {
-              paddingTopLeft: [20, 180],
-              paddingBottomRight: [20, 30],
-              animate: true
-                });
-               }
-             }, 300);
-            });
-　　　　　　　
+        
             place.marker = marker;
             markers.push(marker);
         });
