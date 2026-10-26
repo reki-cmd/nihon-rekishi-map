@@ -456,7 +456,34 @@ min-height: 42px;
     }
 }
 /* ===== ここまで ===== */
+/* ===== ポップアップ表示の修正 ===== */
 
+/* ポップアップ本体はスクロールさせない */
+.leaflet-popup-content {
+    max-height: none;
+    overflow: visible;
+    box-sizing: border-box;
+}
+
+/* 場所名を必ず表示する */
+.leaflet-popup-content h2 {
+    display: block;
+    height: auto;
+    max-height: none;
+    overflow: visible;
+    overflow-wrap: anywhere;
+}
+
+/* コメント欄だけスクロール */
+.leaflet-popup-content div[id^="comments-"] {
+    max-height: 120px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
+}
+
+/* ===== 修正ここまで ===== */
     </style>
  
   <script type="module">
